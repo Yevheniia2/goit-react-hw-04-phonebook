@@ -7,10 +7,7 @@ import { AppContainer } from "./App.styled";
 
 const initValue = () => {
   const contactsLocalStorage = localStorage.getItem('contacts');
-    if (
-      contactsLocalStorage === '' ||
-      JSON.parse(contactsLocalStorage).length === 0
-    ) {
+    if (contactsLocalStorage === '' || JSON.parse(contactsLocalStorage) === null) {
       return [
         { id: 'id-1', name: 'Rosie Simpson', number: '459-12-56' },
         { id: 'id-2', name: 'Hermione Kline', number: '443-89-12' },
