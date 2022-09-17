@@ -34,7 +34,7 @@ export class ContactForm extends Component {
         return (
             <FormBox onSubmit={this.handleSubmit}>
                 <FormLabel>
-                    <FormParagraph>Name</FormParagraph>
+                    <FormParagraph>Name </FormParagraph>
                     <FormInput
                         onChange={ this.handleChangeInput }
                         type="text"
