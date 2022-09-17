@@ -28,9 +28,7 @@ export function App() {
   }, [contacts]);
 
   function handleSetFilterValue(e) {
-    const {
-      target: { value },
-    } = e;
+    const { target: { value }, } = e;
     setFilter(value);
   }
 
