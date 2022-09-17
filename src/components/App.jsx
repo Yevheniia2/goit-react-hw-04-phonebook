@@ -1,66 +1,72 @@
-import { Component } from "react";
+import { useState, useEffect } from 'react';
+import shortid from "shortid";
 import { ContactForm } from "./ContactForm/ContactForm";
 import { ContactList } from "./ContactList/ContactList";
 import { Filter } from "./Filter/Filter";
-import { filterContacts } from "helpers/filterContacts";
 import { AppContainer } from "./App.styled";
 
-const initialContacts = [
-  {id: 'id-1', name: 'Rosie Simpson', number: '459-12-56'},
-  {id: 'id-2', name: 'Hermione Kline', number: '443-89-12'},
-  {id: 'id-3', name: 'Eden Clements', number: '645-17-79'},
-  {id: 'id-4', name: 'Annie Copeland', number: '227-91-26'},
-];
-
-export class App extends Component {
-  state = {
-    contacts: initialContacts,
-    filter: ''
-  };
-
-  componentDidUpdate(prevPorops, prevState) {
-    localStorage.setItem('contacts', JSON.stringify(this.state.contacts));
-    if(this.state.contacts.length !== prevState.contacts.length) {
-      this.setState({contacts: JSON.parse(localStorage.getItem('contacts'))});
+const initValue = () => {
+  const contactsLocalStorage = localStorage.getItem('contacts');
+    if (
+      contactsLocalStorage === '' ||
+      JSON.parse(contactsLocalStorage).length === 0
+    ) {
+      return [
+        { id: 'id-1', name: 'Rosie Simpson', number: '459-12-56' },
+        { id: 'id-2', name: 'Hermione Kline', number: '443-89-12' },
+        { id: 'id-3', name: 'Eden Clements', number: '645-17-79' },
+        { id: 'id-4', name: 'Annie Copeland', number: '227-91-26' },
+      ];
     }
+  return JSON.parse(contactsLocalStorage);
+};
+
+export function App() {
+  const [contacts, setContacts] = useState(initValue);
+  const [filter, setFilter] = useState('');
+  const filteredContacts = filterContacts();
+
+  useEffect(() => {
+    localStorage.setItem('contacts', JSON.stringify(contacts));
+  }, [contacts]);
+
+  function handleSetFilterValue(e) {
+    const {
+      target: { value },
+    } = e;
+    setFilter(value);
   }
 
-  componentDidMount() {
-    if(localStorage.getItem('contacts')) {
-      this.setState({contacts: JSON.parse(localStorage.getItem('contacts'))});
-    }
-  }
-  
-  handleAddContact = contact => {
-    if(this.state.contacts.some(cont => cont.name === contact.name)) {
-      alert("Contact already exsist");
+  function handleAddContact(name, number) {
+    if (contacts.some(contact => contact.name.includes(name))) {
+      alert(`${name} is already in contacts`);
       return;
     }
-    this.setState(prev => ({
-      contacts: [...prev.contacts, contact]
-    }));
-  };
-  
-  handleDeleteContact = id => {
-    this.setState(prevState => ({
-      contacts: prevState.contacts.filter(contact => contact.id !== id),
-    }));
-  };
-  
-  setFilterValue = ({ target: { value } }) => {
-    this.setState({ filter: value });
-  };
-  
-  render() {
-    const filteredContacts = filterContacts(this.state.contacts, this.state.filter);
-    return (
-      <>
-        <AppContainer>
-          <ContactForm onAddContact={ this.handleAddContact } />
-          <Filter handleSetFilterValue={ this.setFilterValue } />
-          <ContactList contacts={ filteredContacts } handleDeleteContact={ this.handleDeleteContact } />
-        </AppContainer>
-      </>
+
+    setContacts(prevContacts => [
+      { id: shortid.generate(), name, number },
+      ...prevContacts,
+    ]);
+  }
+
+  function filterContacts() {
+    const filterValue = filter.toLowerCase();
+    return contacts.filter(contact =>
+      contact.name.toLocaleLowerCase().includes(filterValue)
     );
   }
+
+  function handleDeleteContact(e) {
+    setContacts(contacts.filter(contact => contact.id !== e.target.id));
+  }
+  
+  return (
+    <>
+      <AppContainer>
+        <ContactForm handleAddContact={ handleAddContact } />
+        <Filter handleSetFilterValue={ handleSetFilterValue } />
+        <ContactList contacts={ filteredContacts } handleDeleteContact={ handleDeleteContact } />
+      </AppContainer>
+    </>
+  );
 }
