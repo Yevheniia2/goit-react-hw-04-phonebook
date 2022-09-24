@@ -7,7 +7,7 @@ export function ContactListItem({ id, name, number, handleDeleteContact }) {
         <ContactListLi>
             <FormParagraph>{name}</FormParagraph>
             <FormParagraph>{number}</FormParagraph>
-            <FormButton onClick={() => handleDeleteContact(id)}>Delete</FormButton>
+            <FormButton type='button' id={ id } onClick={ handleDeleteContact }>Delete</FormButton>
         </ContactListLi>
     );
 }

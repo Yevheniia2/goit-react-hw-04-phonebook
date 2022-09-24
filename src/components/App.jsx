@@ -1,9 +1,10 @@
 import { useState, useEffect } from 'react';
-import shortid from "shortid";
+import shortid from 'shortid';
 import { ContactForm } from "./ContactForm/ContactForm";
 import { ContactList } from "./ContactList/ContactList";
 import { Filter } from "./Filter/Filter";
 import { AppContainer } from "./App.styled";
+import PropTypes from 'prop-types';
 
 const initValue = () => {
   const contactsLocalStorage = localStorage.getItem('contacts');
@@ -27,27 +28,30 @@ export function App() {
     localStorage.setItem('contacts', JSON.stringify(contacts));
   }, [contacts]);
 
-  function handleSetFilterValue(e) {
-    const { target: { value }, } = e;
+  function handleSetFilterValue(event) {
+    const { value } = event.target;
     setFilter(value);
   }
 
-  function handleAddContact(name, number) {
-    if (contacts.some(contact => contact.name.includes(name))) {
+  function handleAddContact({name, number}) {
+    const normalizeName = name.trim().toLocaleLowerCase();
+    if (contacts.some(
+      contact => contact.name.toLocaleLowerCase() === normalizeName
+    )) {
       alert(`${name} is already in contacts`);
-      return;
+    } else {
+      setContacts(contacts => [
+        ...contacts,
+        { id: shortid.generate(), name: name.trim(), number: number.trim() },
+      ]);
+      setFilter('');
     }
-
-    setContacts(prevContacts => [
-      { id: shortid.generate(), name, number },
-      ...prevContacts,
-    ]);
   }
 
   function filterContacts() {
-    const filterValue = filter.toLowerCase();
+    const normalizedFilter = filter.toLowerCase();
     return contacts.filter(contact =>
-      contact.name.toLocaleLowerCase().includes(filterValue)
+      contact.name.toLowerCase().includes(normalizedFilter)
     );
   }
 
@@ -58,10 +62,14 @@ export function App() {
   return (
     <>
       <AppContainer>
-        <ContactForm handleAddContact={ handleAddContact } />
+        <ContactForm onAddContact={ handleAddContact } />
         <Filter handleSetFilterValue={ handleSetFilterValue } />
         <ContactList contacts={ filteredContacts } handleDeleteContact={ handleDeleteContact } />
       </AppContainer>
     </>
   );
 }
+
+ContactForm.propTypes = {
+  onAddContact: PropTypes.func,
+};

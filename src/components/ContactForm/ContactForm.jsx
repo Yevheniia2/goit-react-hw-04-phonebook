@@ -13,14 +13,17 @@ export function ContactForm ({onAddContact}) {
         
     const handleSubmit = event => {
         event.preventDefault();
-        onAddContact(name, number);
-        reset();
-    };
+        const name = event.target.name.value;
+        const number = event.target.number.value;
+        onAddContact({
+            name,
+            number,
+        });
 
-    const  reset = () => {
+        event.target.reset();
         setName('');
         setNumber('');
-    }
+    };
 
     return (
         <FormBox onSubmit={ handleSubmit }>
@@ -54,5 +57,5 @@ export function ContactForm ({onAddContact}) {
 }
 
 ContactForm.propTypes = {
-    handleChangeInput: PropTypes.func,
+    onAddContact: PropTypes.func,
 };
